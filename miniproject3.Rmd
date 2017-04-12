@@ -1,6 +1,6 @@
 ---
 title: "Miniproject3"
-author: "Josephine Nyoike, Arielle Dror, Kendra"
+author: "Josephine Nyoike, Arielle Dror, Kendra, Margaret Perry"
 date: "April 10, 2017"
 output: html_document
 ---
@@ -12,3 +12,4 @@ db <- dbConnect_scidb(dbname = "imdb")
 db %>%
   dbGetQuery("SELECT * FROM kind_type;")
 ```
+```{r}
