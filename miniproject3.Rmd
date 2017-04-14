@@ -8,8 +8,54 @@ output: html_document
 ```{r setup, include=TRUE, warning=FALSE, message=FALSE}
 library(mdsr)
 library(RMySQL)
+library(ggplot2)
+library(ggthemes)
+library(scales)
 db <- dbConnect_scidb(dbname = "imdb")
-db %>%
-  dbGetQuery("SELECT * FROM kind_type;")
 ```
 ```{r}
+
+#THE CODE TO FIND NUMBER OF GENRES PER FILM
+genres_per_film <- db %>%
+  dbGetQuery("SELECT mi.movie_id, mi.info_type_id, mi.info, t.title, t.kind_id, t.production_year
+             FROM movie_info mi
+              JOIN title t ON t.id = mi.movie_id
+             WHERE info_type_id = 3
+              AND kind_id = 1;") %>%
+  group_by(movie_id) %>%
+  summarize(num_genres = n())
+genres_per_film
+
+#THE CODE TO FIND AVERAGE NUMBER OF GENRES PER FILM FOR EACH YEAR
+avg_genres <- db %>%
+  dbGetQuery("SELECT *
+             FROM title
+             WHERE kind_id = 1;") %>%
+  right_join(genres_per_film, by = c("id" = "movie_id")) %>%
+  group_by(production_year) %>%
+  summarize(films_per_year = n(), genres_per_year = sum(num_genres)) %>%
+  mutate(mean_genres_per_film = genres_per_year/films_per_year) %>%
+  filter(!is.na(production_year)) %>%
+  filter(production_year < 2012) %>%
+  filter(production_year >= 1900)
+```
+```{r}
+
+##Graphic code
+
+
+thegraphic <- ggplot(avg_genres, aes(x=production_year, y=mean_genres_per_film))+geom_line()+scale_x_continuous(breaks=c(1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010), labels=c("1900", "1910", "1920", "1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010"))+theme_classic()+labs(x= "Year Produced", y= "Number of Genres", title = "The Number of Genres per Film Over Time")
+thegraphic
+```
+```{r}
+genres_per_film <- db %>%
+  dbGetQuery("SELECT mi.movie_id, mi.info_type_id, mi.info, t.title, t.kind_id, t.production_year
+             FROM movie_info mi
+              JOIN title t ON t.id = mi.movie_id
+             WHERE info_type_id = 3
+              AND kind_id = 1;") %>%
+  group_by(movie_id) %>%
+  summarize(num_genres = n())
+genres_per_film
+```
+
