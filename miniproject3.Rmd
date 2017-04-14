@@ -14,7 +14,6 @@ library(scales)
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 ```{r}
-
 #THE CODE TO FIND NUMBER OF GENRES PER FILM
 genres_per_film <- db %>%
   dbGetQuery("SELECT mi.movie_id, mi.info_type_id, mi.info, t.title, t.kind_id, t.production_year
@@ -25,7 +24,8 @@ genres_per_film <- db %>%
   group_by(movie_id) %>%
   summarize(num_genres = n())
 genres_per_film
-
+```
+```{r}
 #THE CODE TO FIND AVERAGE NUMBER OF GENRES PER FILM FOR EACH YEAR
 avg_genres <- db %>%
   dbGetQuery("SELECT *
@@ -38,24 +38,15 @@ avg_genres <- db %>%
   filter(!is.na(production_year)) %>%
   filter(production_year < 2012) %>%
   filter(production_year >= 1900)
+avg_genres
 ```
 ```{r}
-
-##Graphic code
-
-
-thegraphic <- ggplot(avg_genres, aes(x=production_year, y=mean_genres_per_film))+geom_line()+scale_x_continuous(breaks=c(1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010), labels=c("1900", "1910", "1920", "1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010"))+theme_classic()+labs(x= "Year Produced", y= "Number of Genres", title = "The Number of Genres per Film Over Time")
+##Graphic Code and Asectics
+thegraphic <- 
+  ggplot(avg_genres,aes(x=production_year,y=mean_genres_per_film))+ geom_line()+scale_x_continuous(breaks=c(1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010), labels=c("1900", "1910", "1920", "1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010" ))+theme_classic()+ theme( plot.title=element_text(family="serif", face="plain", size=15), axis.text.y = element_text(family="serif", face="plain", size=10), axis.text.x = element_text(family="serif", face="plain", size=10)) +
+  labs(x= "Year Produced", y= "Number of Genres", title = "The Number of Genres per Film Over Time") + annotate(geom= "Text", x = 2005, y = 1.747559, label = "*")
 thegraphic
 ```
-```{r}
-genres_per_film <- db %>%
-  dbGetQuery("SELECT mi.movie_id, mi.info_type_id, mi.info, t.title, t.kind_id, t.production_year
-             FROM movie_info mi
-              JOIN title t ON t.id = mi.movie_id
-             WHERE info_type_id = 3
-              AND kind_id = 1;") %>%
-  group_by(movie_id) %>%
-  summarize(num_genres = n())
-genres_per_film
-```
 
+##Blogpost
+It is not uncommon for people to comment on the amount of oddly spesfic genres found on sites like Netflix, and due to many of these obsevation the question risen if the increase in the amount of genres per flim actually occured and if so why.From research and the graphic, the two main humps in the graph can be related two main events, The Golden Age of Hollywood and the rise internet streaming sites like Netflix. The Golden age of Hollywood came about around 1930 and late 1920s and went until about 1960. We can see a speedy decraese in the number of genres per flim after 1940. In 1947 the Red Scare comes to Hollywood, and several writers and film producers become blacklisted as they are suspected of being communist.This a long with several flims aggitating the red scare, it is likely that flim production drop as there was a possible drop in interest/trust in the flim industry. Due  these factors it is likely that the decrease in the number of genres could be because it was simply not as necessary to have clearly defined flims as there wasn't as many to sort through. We can also see an extremly sharp increase around 2004. This increase could be correlated to Netflix's sudden rise in popularity, and the shift from movie rental to online streaming. Online streaming allowed for new concise ways of determining gerne, and created a much larger demand for specfic and defining gernes. 
